@@ -1,0 +1,397 @@
+-- return {
+-- 	{
+-- 		"vague2k/vague.nvim",
+-- 		lazy = false,
+-- 		priority = 1000,
+-- 		config = function()
+-- 			require("vague").setup({
+-- 				bufferline = true,
+-- 			})
+-- 			vim.cmd("colorscheme vague")
+--
+-- 			-- 🌙 Apply Monokai-style tabline highlights
+-- 			local hl = vim.api.nvim_set_hl
+-- 			local colors = {
+-- 				hex_0e091d = "#000000", -- main background (was dark indigo)
+-- 				hex_061F23 = "#1A1A1A", -- secondary background (was dark teal)
+-- 				hex_092F34 = "#2E2E2E", -- panel/hover (was dark cyan-blue)
+-- 				hex_8CB319 = "#FFFFFF", -- accent/success (was lime olive)
+-- 				hex_9147a8 = "#B0B0B0", -- highlight (was purple)
+-- 			}
+--
+-- 			-- Tabline highlights
+-- 			hl(0, "TabLine", { fg = colors.hex_9147a8, bg = colors.hex_0e091d })
+-- 			hl(0, "TabLineFill", { bg = colors.hex_0e091d })
+-- 			hl(0, "TabLineSel", { fg = colors.hex_8CB319, bg = colors.hex_0e091d, bold = true })
+--
+-- 			-- Bufferline highlights
+-- 			hl(0, "BufferLineBackground", { fg = colors.hex_9147a8, bg = colors.hex_0e091d })
+-- 			hl(0, "BufferLineFill", { bg = colors.hex_0e091d })
+-- 			hl(0, "BufferLineBufferSelected", { fg = colors.hex_8CB319, bg = colors.hex_0e091d, bold = true })
+-- 			hl(0, "BufferLineBufferVisible", { fg = colors.hex_8CB319, bg = colors.hex_0e091d })
+-- 		end,
+-- 	},
+-- }
+
+-- return {
+-- 	{
+-- 		"metalelf0/black-metal-theme-neovim",
+-- 		lazy = false,
+-- 		priority = 1000,
+-- 		config = function()
+-- 			require("black-metal").setup({
+-- 				theme = "burzum", --(these are variations pick whatever you like)bathory, burzum, dark-funeral, darkthrone, emperor, gorgoroth, immortal, impaled-nazarene, khold, marduk, mayhem, nile, taake, thyrfing, venom, windir
+-- 				variant = "nile",
+-- 			})
+-- 			require("black-metal").load()
+-- 		end,
+-- 	},
+-- }
+
+-- # ────────────────────────────────────────────────────────────
+-- # Omarchy black_arch Theme for neovim (You can configure this theme according to your taste)
+-- # By Ankur
+-- # https://github.com/ankur311sudo
+-- # ────────────────────────────────────────────────────────────
+
+-- local M = {
+-- 	{
+-- 		"LazyVim/LazyVim",
+-- 		opts = {
+-- 			colorscheme = function()
+-- 				vim.cmd("set termguicolors")
+-- 				vim.cmd("highlight clear")
+--
+-- 				-- ================================
+-- 				-- AYU DARK PALETTE (PORTED)
+-- 				-- ================================
+-- 				local colors = {
+-- 					bg = "#000000",
+-- 					fg = "#e6e1cf",
+-- 					muted = "#666666",
+-- 					dark = "#222222",
+-- 					border = "#222222",
+-- 					selection = "#222222",
+-- 					black = "#000000",
+--
+-- 					primary = "#36a3d9", -- blue
+-- 					secondary = "#b8cc52", -- green
+-- 					success = "#b8cc52",
+-- 					warning = "#e6b673", -- yellow
+-- 					danger = "#f07178", -- red
+-- 					accent = "#ff7733", -- orange
+-- 					info = "#36a3d9",
+-- 					purple = "#ffee99", -- magenta
+-- 					subtle = "#222222",
+-- 				}
+--
+-- 				local function set_hl(group, opts)
+-- 					vim.api.nvim_set_hl(0, group, opts)
+-- 				end
+--
+-- 				-- ================================
+-- 				-- CORE UI
+-- 				-- ================================
+-- 				set_hl("Normal", { fg = colors.fg, bg = colors.bg })
+-- 				set_hl("NormalNC", { fg = colors.fg, bg = colors.bg })
+-- 				set_hl("Comment", { fg = colors.muted, italic = true })
+-- 				set_hl("NonText", { fg = colors.muted })
+-- 				set_hl("Whitespace", { fg = colors.muted })
+-- 				set_hl("EndOfBuffer", { fg = colors.bg })
+--
+-- 				set_hl("CursorLine", { bg = colors.dark })
+-- 				set_hl("CursorColumn", { bg = colors.dark })
+-- 				set_hl("CursorLineNr", { fg = colors.primary, bold = true })
+-- 				set_hl("LineNr", { fg = colors.muted })
+--
+-- 				set_hl("Visual", { bg = colors.selection })
+-- 				set_hl("Search", { fg = colors.bg, bg = colors.primary })
+-- 				set_hl("IncSearch", { fg = colors.bg, bg = colors.accent })
+--
+-- 				set_hl("VertSplit", { fg = colors.border })
+-- 				set_hl("WinSeparator", { fg = colors.border })
+--
+-- 				-- ================================
+-- 				-- STATUS / TABLINE
+-- 				-- ================================
+-- 				set_hl("StatusLine", { fg = colors.fg, bg = colors.dark })
+-- 				set_hl("StatusLineNC", { fg = colors.muted, bg = colors.dark })
+--
+-- 				set_hl("TabLine", { fg = colors.muted, bg = colors.dark })
+-- 				set_hl("TabLineFill", { bg = colors.black })
+-- 				set_hl("TabLineSel", { fg = colors.primary, bg = colors.bg, bold = true })
+--
+-- 				-- ================================
+-- 				-- SYNTAX
+-- 				-- ================================
+-- 				set_hl("Constant", { fg = colors.purple })
+-- 				set_hl("String", { fg = colors.secondary })
+-- 				set_hl("Character", { fg = colors.secondary })
+-- 				set_hl("Number", { fg = colors.purple })
+-- 				set_hl("Boolean", { fg = colors.primary, bold = true })
+--
+-- 				set_hl("Identifier", { fg = colors.fg })
+-- 				set_hl("Function", { fg = colors.info, bold = true })
+--
+-- 				set_hl("Statement", { fg = colors.primary, bold = true })
+-- 				set_hl("Conditional", { fg = colors.primary })
+-- 				set_hl("Repeat", { fg = colors.primary })
+-- 				set_hl("Keyword", { fg = colors.primary, bold = true })
+-- 				set_hl("Operator", { fg = colors.accent })
+-- 				set_hl("Exception", { fg = colors.danger })
+--
+-- 				set_hl("Type", { fg = colors.warning, italic = true })
+-- 				set_hl("StorageClass", { fg = colors.danger })
+-- 				set_hl("Structure", { fg = colors.secondary })
+-- 				set_hl("Typedef", { fg = colors.secondary })
+--
+-- 				set_hl("PreProc", { fg = colors.secondary })
+-- 				set_hl("Include", { fg = colors.primary })
+-- 				set_hl("Define", { fg = colors.primary })
+-- 				set_hl("Macro", { fg = colors.warning })
+--
+-- 				set_hl("Special", { fg = colors.accent })
+-- 				set_hl("Delimiter", { fg = colors.fg })
+--
+-- 				-- ================================
+-- 				-- DIAGNOSTICS
+-- 				-- ================================
+-- 				set_hl("DiagnosticError", { fg = colors.danger })
+-- 				set_hl("DiagnosticWarn", { fg = colors.warning })
+-- 				set_hl("DiagnosticInfo", { fg = colors.info })
+-- 				set_hl("DiagnosticHint", { fg = colors.muted })
+--
+-- 				set_hl("DiagnosticUnderlineError", { undercurl = true, sp = colors.danger })
+-- 				set_hl("DiagnosticUnderlineWarn", { undercurl = true, sp = colors.warning })
+-- 				set_hl("DiagnosticUnderlineInfo", { undercurl = true, sp = colors.info })
+--
+-- 				-- ================================
+-- 				-- TREESITTER
+-- 				-- ================================
+-- 				set_hl("@comment", { link = "Comment" })
+-- 				set_hl("@string", { link = "String" })
+-- 				set_hl("@number", { link = "Number" })
+-- 				set_hl("@boolean", { link = "Boolean" })
+-- 				set_hl("@constant", { link = "Constant" })
+--
+-- 				set_hl("@function", { link = "Function" })
+-- 				set_hl("@function.builtin", { fg = colors.accent, bold = true })
+--
+-- 				set_hl("@keyword", { link = "Keyword" })
+-- 				set_hl("@keyword.function", { link = "Keyword" })
+-- 				set_hl("@keyword.operator", { link = "Operator" })
+--
+-- 				set_hl("@type", { link = "Type" })
+-- 				set_hl("@type.builtin", { fg = colors.warning, bold = true })
+--
+-- 				set_hl("@variable", { fg = colors.fg })
+-- 				set_hl("@variable.builtin", { fg = colors.danger, italic = true })
+--
+-- 				set_hl("@parameter", { fg = colors.warning, italic = true })
+-- 				set_hl("@property", { fg = colors.info })
+-- 				set_hl("@field", { fg = colors.info })
+--
+-- 				set_hl("@punctuation.delimiter", { link = "Delimiter" })
+-- 				set_hl("@punctuation.bracket", { link = "Delimiter" })
+--
+-- 				-- ================================
+-- 				-- SPELL
+-- 				-- ================================
+-- 				set_hl("SpellBad", { undercurl = true, sp = colors.danger })
+-- 				set_hl("SpellCap", { undercurl = true, sp = colors.warning })
+--
+-- 				-- ================================
+-- 				-- FINAL
+-- 				-- ================================
+-- 				vim.g.colors_name = "ayu-dark-custom"
+-- 			end,
+-- 		},
+-- 	},
+-- }
+--
+-- return M
+
+-- return {
+-- 	{
+-- 		"oskarnurm/koda.nvim",
+-- 		lazy = false, -- load at startup
+-- 		priority = 1000, -- load before other UI plugins
+-- 		config = function()
+-- 			-- require("koda").setup({ transparent = true }) -- optional
+-- 			vim.cmd.colorscheme("koda")
+-- 		end,
+-- 	},
+--
+-- 	{
+-- 		"LazyVim/LazyVim",
+-- 		opts = {
+-- 			colorscheme = "koda",
+-- 		},
+-- 	},
+-- }
+--
+-- local M = {
+-- 	{
+-- 		"LazyVim/LazyVim",
+-- 		opts = {
+-- 			colorscheme = function()
+-- 				vim.cmd("set termguicolors")
+--
+-- 				-- ======================
+-- 				-- Base16 / Base30 palette
+-- 				-- ======================
+-- 				local colors = {
+-- 					bg = "#000000", -- base00
+-- 					fg = "#D9D7D6", -- base05
+--
+-- 					primary = "#F26E74", -- base08 (keywords)
+-- 					secondary = "#82C29C", -- base0B (strings)
+-- 					info = "#79AAEB", -- base0D (functions)
+-- 					warning = "#ECD28B", -- base09 (types)
+-- 					accent = "#C488EC", -- base0E (operators)
+-- 					danger = "#F16269", -- base0F
+-- 					success = "#82C29C",
+--
+-- 					purple = "#C488EC",
+-- 					cyan = "#6791C9",
+-- 					orange = "#E9967E",
+--
+-- 					muted = "#3B464A", -- comments
+-- 					subtle = "#192428", -- selection
+-- 					dark = "#0C171B", -- cursorline
+-- 					border = "#222D31",
+-- 					selection = "#1e1e2e",
+-- 				}
+--
+-- 				vim.cmd("highlight clear")
+--
+-- 				local function set_hl(group, opts)
+-- 					vim.api.nvim_set_hl(0, group, opts)
+-- 				end
+--
+-- 				-- ======================
+-- 				-- Core UI
+-- 				-- ======================
+-- 				set_hl("Normal", { fg = colors.fg, bg = colors.bg })
+-- 				set_hl("CursorLine", { bg = colors.dark })
+-- 				set_hl("CursorLineNr", { fg = colors.primary, bold = true })
+-- 				set_hl("LineNr", { fg = colors.muted })
+-- 				set_hl("Visual", { bg = colors.selection })
+-- 				set_hl("VertSplit", { fg = colors.border })
+-- 				set_hl("WinSeparator", { fg = colors.border })
+--
+-- 				-- ======================
+-- 				-- Syntax
+-- 				-- ======================
+-- 				set_hl("Comment", { fg = colors.muted, italic = true })
+-- 				set_hl("String", { fg = colors.secondary })
+-- 				set_hl("Character", { fg = colors.secondary })
+-- 				set_hl("Number", { fg = colors.orange })
+-- 				set_hl("Boolean", { fg = colors.primary, bold = true })
+-- 				set_hl("Float", { fg = colors.orange })
+-- 				set_hl("Identifier", { fg = colors.fg })
+-- 				set_hl("Function", { fg = colors.info, bold = true })
+-- 				set_hl("Keyword", { fg = colors.primary, bold = true })
+-- 				set_hl("Operator", { fg = colors.accent })
+-- 				set_hl("Type", { fg = colors.warning, italic = true })
+-- 				set_hl("Constant", { fg = colors.purple })
+--
+-- 				-- ======================
+-- 				--  tabline
+-- 				-- ======================
+--
+-- 				set_hl("TabLine", { fg = colors.muted, bg = colors.dark })
+-- 				set_hl("TabLineFill", { bg = colors.bg })
+-- 				set_hl("TabLineSel", { fg = colors.primary, bg = colors.bg, bold = true })
+--
+-- 				-- ======================
+-- 				-- Popup / UI elements
+-- 				-- ======================
+-- 				set_hl("Pmenu", { fg = colors.fg, bg = colors.dark })
+-- 				set_hl("PmenuSel", { fg = colors.bg, bg = colors.primary })
+-- 				set_hl("StatusLine", { fg = colors.fg, bg = colors.dark })
+-- 				set_hl("StatusLineNC", { fg = colors.muted, bg = colors.dark })
+--
+-- 				-- ======================
+-- 				-- Diagnostics
+-- 				-- ======================
+-- 				set_hl("DiagnosticError", { fg = colors.danger })
+-- 				set_hl("DiagnosticWarn", { fg = colors.warning })
+-- 				set_hl("DiagnosticInfo", { fg = colors.info })
+-- 				set_hl("DiagnosticHint", { fg = colors.muted })
+--
+-- 				set_hl("DiagnosticUnderlineError", { undercurl = true, sp = colors.danger })
+-- 				set_hl("DiagnosticUnderlineWarn", { undercurl = true, sp = colors.warning })
+-- 				set_hl("DiagnosticUnderlineInfo", { undercurl = true, sp = colors.info })
+-- 				set_hl("DiagnosticUnderlineHint", { undercurl = true, sp = colors.muted })
+--
+-- 				-- ======================
+-- 				-- Treesitter
+-- 				-- ======================
+-- 				set_hl("@comment", { link = "Comment" })
+-- 				set_hl("@string", { link = "String" })
+-- 				set_hl("@function", { link = "Function" })
+-- 				set_hl("@keyword", { link = "Keyword" })
+-- 				set_hl("@type", { link = "Type" })
+-- 				set_hl("@variable", { fg = colors.fg })
+-- 				set_hl("@operator", { link = "Operator" })
+-- 				set_hl("@constant.builtin", { fg = colors.danger, bold = true })
+-- 				set_hl("@function.builtin", { fg = colors.accent, bold = true })
+--
+-- 				vim.g.colors_name = "rxyhn-base16"
+-- 			end,
+-- 		},
+-- 	},
+-- }
+--
+-- return M
+
+return {
+	"shaunsingh/nord.nvim",
+	lazy = false, -- make sure we load this during startup if it is your main colorscheme
+	priority = 1000, -- make sure to load this before all the other start plugins
+	config = function()
+		-- Example config in lua
+		vim.g.nord_contrast = true -- Make sidebars and popup menus like nvim-tree and telescope have a different background
+		vim.g.nord_borders = false -- Enable the border between verticaly split windows visable
+		vim.g.nord_disable_background = true -- Disable the setting of background color so that NeoVim can use your terminal background
+		vim.g.set_cursorline_transparent = false -- Set the cursorline transparent/visible
+		vim.g.nord_italic = false -- enables/disables italics
+		vim.g.nord_enable_sidebar_background = false -- Re-enables the background of the sidebar if you disabled the background of everything
+		vim.g.nord_uniform_diff_background = true -- enables/disables colorful backgrounds when used in diff mode
+		vim.g.nord_bold = false -- enables/disables bold
+
+		-- Neutralize Nord's blue-tinted whites and raise them ~10%, since neutral
+		-- colors read dimmer than tinted ones at equal luminance. nord.nvim has no
+		-- color option, but nord.colors reads the palette from nord.named_colors
+		-- on load, so mutating it before the first require('nord') propagates.
+		local palette = require("nord.named_colors")
+		palette.darkest_white = "#E7E7E7" -- nord4, was #D8DEE9
+		palette.darker_white = "#F0F0F0" -- nord5, was #E5E9F0
+		palette.white = "#F7F7F7" -- nord6, was #ECEFF4
+
+		-- Load the colorscheme
+		require("nord").set()
+
+		-- Function to set menu borders to transparent
+		-- local set_menu_border_transparency = function()
+		--   vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'NONE', fg = 'NONE' })
+		--   vim.api.nvim_set_hl(0, 'FloatBorder', { bg = 'NONE', fg = 'NONE' })
+		-- end
+
+		-- Execute the function once after loading the colorscheme
+		-- set_menu_border_transparency()
+
+		local bg_transparent = true
+
+		-- Toggle background transparency
+		local toggle_transparency = function()
+			bg_transparent = not bg_transparent
+			vim.g.nord_disable_background = bg_transparent
+			vim.cmd([[colorscheme nord]])
+			-- set_menu_border_transparency()
+		end
+
+		vim.keymap.set("n", "<leader>bg", toggle_transparency, { noremap = true, silent = true })
+	end,
+}

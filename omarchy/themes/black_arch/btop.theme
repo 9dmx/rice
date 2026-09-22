@@ -1,0 +1,96 @@
+
+# ────────────────────────────────────────────────────────────
+# Bashtop Theme - Pure Black & White
+# True monochrome (no colors)
+# ────────────────────────────────────────────────────────────
+
+# Background (leave empty for terminal’s black)
+theme[main_bg]=""
+
+
+# Main text
+theme[main_fg]="#D9D7D6"
+
+# Box titles
+theme[title]="#79AAEB"        # base0D (blue accent)
+
+# Keyboard shortcut highlights
+theme[hi_fg]="#C488EC"        # base0E (purple)
+
+# Selected process background / foreground
+theme[selected_bg]="#192428"  # base03
+theme[selected_fg]="#EDEBEA"  # base07
+
+# Inactive / disabled text
+theme[inactive_fg]="#455054"  # muted grey
+
+# Misc process info (mini graphs, status)
+theme[proc_misc]="#6791C9"    # base0C (cyan-blue)
+
+# ===============================
+# Box outlines & dividers
+# ===============================
+
+theme[cpu_box]="#ECD28B"
+theme[mem_box]="#ECD28B"
+theme[net_box]="#ECD28B"
+theme[proc_box]="#ECD28B"
+
+# Internal dividers (slightly muted)
+theme[div_line]="#E9967E"
+
+
+# ===============================
+# Temperature graph
+# ===============================
+
+theme[temp_start]="#82C29C"   # base0B (cool)
+theme[temp_mid]="#ECD28B"     # base09 (warm)
+theme[temp_end]="#F26E74"     # base08 (hot)
+
+# ===============================
+# CPU usage graph
+# ===============================
+
+theme[cpu_start]="#6791C9"    # base0C
+theme[cpu_mid]="#79AAEB"      # base0D
+theme[cpu_end]="#C488EC"      # base0E
+
+# ===============================
+# Memory / Disk meters
+# ===============================
+
+# Free
+theme[free_start]="#82C29C"
+theme[free_mid]="#79AAEB"
+theme[free_end]="#EDEBEA"
+
+# Cached
+theme[cached_start]="#6791C9"
+theme[cached_mid]="#79AAEB"
+theme[cached_end]="#EDEBEA"
+
+# Available
+theme[available_start]="#82C29C"
+theme[available_mid]="#79AAEB"
+theme[available_end]="#EDEBEA"
+
+# Used
+theme[used_start]="#E9967E"   # base0A
+theme[used_mid]="#ECD28B"     # base09
+theme[used_end]="#F26E74"     # base08
+
+# ===============================
+# Network graphs
+# ===============================
+
+# Download
+theme[download_start]="#82C29C"
+theme[download_mid]="#79AAEB"
+theme[download_end]="#C488EC"
+
+# Upload
+theme[upload_start]="#E9967E"
+theme[upload_mid]="#ECD28B"
+theme[upload_end]="#F26E74"
+

@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""jarvis-listen — always-on "Hey Jarvis" wake word.
+
+Reads 16 kHz mono PCM from `pw-record`, runs openWakeWord's pretrained
+`hey_jarvis` model on 80 ms frames, and on detection runs `jarvis dictate`
+(hush → chime → start dictation) or `jarvis hush`, per JARVIS_WAKE_ACTION.
+
+A dictation the wake word started ends on its own: Silero VAD (bundled with
+openWakeWord) watches for speech, and once you have spoken, JARVIS_SILENCE_SECS
+of quiet runs `jarvis dictate stop` — Voxtype then types the text and, with
+output.auto_submit, presses Enter. Say nothing for JARVIS_MAX_WAIT_SECS after
+the wake and the recording is cancelled (a false wake types nothing). A second
+"Hey Jarvis" ("Hey Jarvis, stop") ends it early, after a short grace period so
+the stop word lands in the recording and `jarvis-dictation-filter` can strip it.
+Recordings started by the dictation key are left to the key (and the stop word).
+JARVIS_SILENCE_SECS=0 turns the silence stop off.
+
+Run under systemd via `jarvis listen enable`; `--check` just confirms the
+bundled model files are present. Agent-agnostic: dictation lands in whatever window is focused.
+"""
+import os
+import subprocess
+import sys
+import time
+
+BIN = os.path.dirname(os.path.realpath(__file__))
+FRAME = 1280  # samples = 80 ms at 16 kHz, openWakeWord's native chunk
+FRAME_SECS = FRAME / 16000
+
+
+def env():
+    """Source jarvis-env through bash so config.sh precedence is identical to the shell scripts."""
+    out = subprocess.run(
+        ["bash", "-c", f'set -a; . "{BIN}/jarvis-env"; env'], capture_output=True, text=True, check=True
+    ).stdout
+    return dict(line.split("=", 1) for line in out.splitlines() if "=" in line)
+
+
+def log(cfg, msg):
+    with open(cfg["JARVIS_LOG"], "a") as f:
+        f.write(f"{time.strftime('%H:%M:%S')} listen: {msg}\n")
+
+
+def set_state(cfg, name):
+    p = cfg["JARVIS_STATE"]
+    with open(p + ".tmp", "w") as f:
+        f.write(name + "\n")
+    os.replace(p + ".tmp", p)
+
+
+def read(path, default=""):
+    try:
+        with open(path) as f:
+            return f.read().strip()
+    except OSError:
+        return default
+
+
+def jarvis(*args):
+    subprocess.Popen([os.path.join(BIN, "jarvis"), *args])
+
+
+def main():
+    cfg = env()
+    import openwakeword
+    from openwakeword.model import Model
+    from openwakeword.vad import VAD
+    import numpy as np
+
+    # The models ship inside the openwakeword wheel that requirements.txt pins by hash; nothing is
+    # fetched at runtime. (Newer openwakeword releases download models on demand — deliberately unused.)
+    models_dir = os.path.join(os.path.dirname(openwakeword.__file__), "resources", "models")
+    model_path = next((os.path.join(models_dir, f) for f in sorted(os.listdir(models_dir))
+                       if f.startswith("hey_jarvis") and f.endswith(".onnx")), None)
+    if model_path is None:
+        sys.exit("hey_jarvis model not found in " + models_dir + " — run 'jarvis setup'")
+    if "--check" in sys.argv:
+        print("hey_jarvis model ready:", model_path)
+        return
+
+    model = Model(wakeword_model_paths=[model_path])
+    key = next(iter(model.predict(np.zeros(FRAME, dtype=np.int16))))  # model's own label, e.g. "hey_jarvis_v0.1"
+    vad = VAD()
+    threshold = float(cfg.get("JARVIS_WAKE_THRESHOLD", "0.5"))
+    cooldown = float(cfg.get("JARVIS_WAKE_COOLDOWN", "3"))
+    stop_grace = float(cfg.get("JARVIS_STOP_GRACE", "1"))
+    action = cfg.get("JARVIS_WAKE_ACTION", "dictate")
+    silence_secs = float(cfg.get("JARVIS_SILENCE_SECS", "1.5"))
+    vad_threshold = float(cfg.get("JARVIS_VAD_THRESHOLD", "0.5"))
+    max_wait = float(cfg.get("JARVIS_MAX_WAIT_SECS", "15"))
+    # Consecutive speech frames before the recording counts as spoken: rejects the chime, clicks, coughs.
+    min_speech_frames = max(1, round(float(cfg.get("JARVIS_SPEECH_MIN_SECS", "0.3")) / FRAME_SECS))
+    vox_state = os.path.join(cfg.get("XDG_RUNTIME_DIR", "/nonexistent"), "voxtype", "state")  # never /tmp
+    muted_flag = os.path.join(cfg["JARVIS_CONFIG_DIR"], "muted")
+
+    rec = subprocess.Popen(
+        ["pw-record", "--rate", "16000", "--channels", "1", "--format", "s16", "-"],
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+    )
+    log(cfg, f"started (threshold {threshold}, action {action}, silence stop "
+             f"{f'{silence_secs:g}s' if silence_secs > 0 else 'off'})")
+    if read(cfg["JARVIS_STATE"], "idle") in ("off", ""):
+        set_state(cfg, "muted" if os.path.exists(muted_flag) else "idle")
+
+    last_wake = 0.0
+    # Dictation the wake word started, tracked for the silence stop. None = not ours (key-started, or none).
+    ours = None      # {"t0": start time, "spoke": bool, "last_speech": time, "speech_frames": int, "ending": bool}
+    try:
+        while True:
+            buf = rec.stdout.read(FRAME * 2)
+            if len(buf) < FRAME * 2:
+                log(cfg, "pw-record ended")
+                sys.exit(1)  # systemd restarts us
+            audio = np.frombuffer(buf, dtype=np.int16)
+            now = time.time()
+            recording = read(vox_state) == "recording"
+
+            if ours is not None and not recording:
+                # Stopped — by us, the stop word, the key, or Voxtype's own cap. Back to wake-word only.
+                if ours["spoke"] or now - ours["t0"] > 1.5:
+                    ours = None
+                    last_wake = now  # cooldown before the next wake
+                    model.reset()
+            elif ours is not None and not ours["ending"] and silence_secs > 0:
+                # Silence stop: speech, then silence_secs of quiet, ends the dictation.
+                if float(vad.predict(audio, frame_size=640)) >= vad_threshold:
+                    ours["speech_frames"] += 1
+                    ours["last_speech"] = now
+                    if ours["speech_frames"] >= min_speech_frames:
+                        ours["spoke"] = True
+                else:
+                    ours["speech_frames"] = 0
+                if ours["spoke"] and now - ours["last_speech"] >= silence_secs:
+                    log(cfg, f"silence {silence_secs:g}s")
+                    ours["ending"] = True
+                    jarvis("dictate", "stop")
+                elif not ours["spoke"] and now - ours["t0"] >= max_wait:
+                    log(cfg, f"nothing said in {max_wait:g}s")
+                    ours["ending"] = True
+                    jarvis("dictate", "cancel")
+
+            score = model.predict(audio)[key]
+            if score >= threshold and now - last_wake > cooldown:
+                last_wake = now
+                model.reset()
+                if recording:
+                    # "Hey Jarvis, stop" mid-dictation: let the stop word finish, then end the recording.
+                    log(cfg, f"stop wake ({score:.2f})")
+                    if ours is not None:
+                        ours["ending"] = True
+                    time.sleep(stop_grace)
+                    jarvis("dictate", "stop")
+                else:
+                    log(cfg, f"wake ({score:.2f})")
+                    jarvis("dictate" if action == "dictate" else "hush")
+                    if action == "dictate":
+                        vad.reset_states()
+                        ours = {"t0": now, "spoke": False, "last_speech": 0.0, "speech_frames": 0, "ending": False}
+    finally:
+        rec.terminate()
+        set_state(cfg, "muted" if os.path.exists(muted_flag) else "idle")
+
+
+if __name__ == "__main__":
+    main()
